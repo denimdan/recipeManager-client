@@ -1,5 +1,5 @@
 import { Container, Card, Col, Row, Modal, Button } from "react-bootstrap";
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import axios from 'axios';
 import { Link } from "react-router-dom";
 
@@ -10,6 +10,12 @@ function Recipes() {
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    useEffect(() => {
+        axios.get('http://localhost:4000/api/recipes').then((response) => {
+            setRecipeData(response.data);
+        });
+    }, []);
 
     const RenderCards = () => {
         return (
@@ -85,9 +91,9 @@ function Recipes() {
                                 recipeDetails
                             },
                         }}>
-                    <Button variant="warning">Edit</Button>
+                        <Button variant="warning">Edit</Button>
                     </Link>
-                    <Button variant="danger">Delete</Button>
+                    <Button onClick={() => deleteRecipe(recipeDetails._id)} variant="danger">Delete</Button>
                 </Modal.Footer>
             </Modal>
         )
@@ -104,11 +110,19 @@ function Recipes() {
         handleShow()
     }
 
-    useEffect(() => {
-        axios.get('http://localhost:4000/api/recipes').then((response) => {
-            setRecipeData(response.data);
-        });
-    }, []);
+    const deleteRecipe = (id) => {
+        axios.delete(`http://localhost:4000/api/recipes/${id}`)
+        .then(response => {
+            console.log(response);
+            handleClose();
+            axios.get('http://localhost:4000/api/recipes').then((response) => {
+                setRecipeData(response.data);
+            });
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
 
     return (
         <>
